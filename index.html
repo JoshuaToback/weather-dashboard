@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en-US">
+   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="/assets/style.css">
+
+    <!-- APIs for Bootstrap and Google Font -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+   </head>
+
+   <body>
+
+        <div class="container">
+            <div class="current-info">
+
+                <div class="date-container">
+                    <div class="time" id="time">
+                        12:30 <span id="am-pm">PM</span>
+                    </div>
+                    <div class="date" id="date">
+                        Monday, 24 October
+                    </div>
+
+                    <div class="others" id="current-weather-items">
+                        <div class="weather-item">
+                            <div>Humidity</div>
+                            <div>95.2%</div>
+                        </div>
+                        <div class="weather-item">
+                            <div>UV Index</div>
+                            <div>121</div>
+                        </div>
+                        <div class="weather-item">
+                            <div>Wind Speed</div>
+                            <div>95.2%</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="place-container">
+                    <div class="time-zone" id="time-zone">EST</div>
+                    <div id="country" class="country">UNITED STATES</div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/assets/script.js"></script>
+   </body>
+</html>
