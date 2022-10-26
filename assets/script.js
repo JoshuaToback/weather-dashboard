@@ -1,4 +1,5 @@
-// Global variablesvar searchHistory = [];
+// Global variables
+var searchHistory = [];
 var weatherApiRootUrl = 'https://api.openweathermap.org';
 var weatherApiKey = 'd91f911bcf2c0f925fb6535547a5ddc9';
 
@@ -18,17 +19,42 @@ var searchHistoryContainer = document.querySelector('#history');
 dayjs.extend(window.dayjs_plugin_utc);
 dayjs.extend(window.dayjs_plugin_timezone);
 
-function renderItems(city, data) {
-  // renderCurrentWeather(city, data.current, data.timezone);
-  renderForecast(data.daily, data.timezone);
+var saveSearch = function() {
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory))
 }
 
+function fetchCityCoords(cityName) {
+  var geoCodeAPIURL = `${weatherApiRootUrl}/geo/1.0/direct?q=${cityName}, US&appid=${weatherApiKey}`;
+
+  fetch(geoCodeAPIURL)
+ 		.then(
+ 			function (res) {
+	      		return res.json();
+	    	}
+ 			)
+	    .then(
+	    	function (geoCodeData) {
+	    	console.log("GEOCODE", geoCodeData)
+        var [cityData] = geoCodeData;
+        fetchWeather({ 
+          lat: cityData.lat,
+          lon: cityData.lon,
+          name: cityData.name
+        })
+    	}
+    	)
+    	.catch(function (err) {
+      		console.error(err);
+    	});
+
+}
+var todayForecast;
+var timezone;
 
 function fetchWeather(location) {
- 	var { lat } = location;
-  	var { lon } = location;
+  	var { lat, lon } = location;
   	var city = location.name;
- 	var apiUrl = `${weatherApiRootUrl}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${weatherApiKey}`;
+ 	  var apiUrl = `${weatherApiRootUrl}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${weatherApiKey}`;
 
 
  	fetch(apiUrl)
@@ -42,10 +68,11 @@ function fetchWeather(location) {
  			)
 	    .then(
 	    	function (data) {
-
+        todayForecast =  data.daily[0];
+        timezone = data.timezone;
 	    	console.log("DATA", data)
-      		renderItems(city, data);
-
+      	renderItems(city, data);
+        renderCurrentWeather(city, todayForecast, timezone);
 
     	}
     	)
@@ -55,10 +82,55 @@ function fetchWeather(location) {
 
 }
 
-// function getResults() {
-//     var btn = document.getElementById('search-button')
-//     btn.click();
-// }
+function renderItems(city, data) {
+  renderCurrentWeather(city, data.todayForecast, data.timezone);
+  renderForecast(data.daily, data.timezone);
+}
+
+// Add Button Event Listener
+searchForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  var city = searchInput.value;
+
+  fetchCityCoords(city);
+})
+
+
+function renderCurrentWeather(city, todayForecast, timezone) {
+  var unixTs = todayForecast.dt
+  var iconUrl = `https://openweathermap.org/img/w/${todayForecast.weather[0].icon}.png`;
+  var iconDescription = todayForecast.weather[0].description;
+  var tempF = todayForecast.temp.day;
+  var { humidity } = todayForecast;
+  var windMph = todayForecast.wind_speed;
+  var todayContainer = document.createElement('div');
+
+  var today = dayJs().tz(timezone).unix();
+  console.log(today);
+
+  var top = document.createElement('div');
+  var topInside = document.createElement('div');
+  var topBody = document.createElement('div');
+  var topTitle = document.createElement('div');
+  var weatherIcon = document.createElement('img');
+  var tempEl = document.createElement('p');
+  var windEl = document.createElement('p');
+  var humidityEl = document.createElement('p');
+
+  topTitle.textContent = dayjs.unix(unixTs).tz(timezone).format('M/D/YYYY');
+  weatherIcon.setAttribute('src', iconUrl);
+  weatherIcon.setAttribute('alt', iconDescription);
+  tempEl.textContent = `Temp: ${tempF} °F`;
+  windEl.textContent = `Wind: ${windMph} MPH`;
+  humidityEl.textContent = `Humidity: ${humidity} %`;
+
+  top.append(topInside);
+  topInside.append(topBody);
+  topBody.append(topTitle, weatherIcon, tempEl, windEl, humidityEl);
+
+  todayContainer.append(top);
+
+}
 
 // Function to display 5 day forecast.
 function renderForecast(dailyForecast, timezone) {
@@ -129,8 +201,3 @@ function renderForecastCard(forecast, timezone) {
   forecastContainer.append(col);
 }
 
-fetchWeather({
-	lat: 10,
-	lon: 10,
-	name: "San Diego"
-})
