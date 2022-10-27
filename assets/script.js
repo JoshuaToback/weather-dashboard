@@ -97,38 +97,58 @@ searchForm.addEventListener('submit', function(event) {
 
 
 function renderCurrentWeather(city, todayForecast, timezone) {
-  var unixTs = todayForecast.dt
+//  API Variables
+  var currentDt = Date.now;
+  var todayContainer = document.createElement('div');
+
+
+  var top = document.createElement('div');
+  var topTitle = document.createElement('h4');
+
+  todayContainer.innerHTML = '';
+  todayContainer.append(top);
+
+  top.setAttribute('class', 'col-lg-9 pb-3')
+  topTitle.textContent = 'Current Forecast:';
+  top.append(topTitle);
+
+  todayContainer.innerHTML = '';
+  todayContainer.append(top);
+  if (currentDt = todayForecast) {
+    renderTodayCard(city, todayForecast, timezone);
+  };
+}
+
+function renderTodayCard(city, todayForecast, timezone) {
+  var currentLocation = city;
+  var unixTs = todayForecast.dt;
+  var topTitle = document.createElement('h1');
+  var topDate = document.createElement('h3');
   var iconUrl = `https://openweathermap.org/img/w/${todayForecast.weather[0].icon}.png`;
   var iconDescription = todayForecast.weather[0].description;
   var tempF = todayForecast.temp.day;
   var { humidity } = todayForecast;
   var windMph = todayForecast.wind_speed;
-  var todayContainer = document.createElement('div');
 
-  var today = dayJs().tz(timezone).unix();
-  console.log(today);
-
-  var top = document.createElement('div');
   var topInside = document.createElement('div');
   var topBody = document.createElement('div');
-  var topTitle = document.createElement('div');
   var weatherIcon = document.createElement('img');
   var tempEl = document.createElement('p');
   var windEl = document.createElement('p');
   var humidityEl = document.createElement('p');
 
-  topTitle.textContent = dayjs.unix(unixTs).tz(timezone).format('M/D/YYYY');
+  topTitle.textContent = currentLocation;
+  topDate.textContent = dayjs.unix(unixTs).tz(timezone).format('M/D/YYYY');
   weatherIcon.setAttribute('src', iconUrl);
   weatherIcon.setAttribute('alt', iconDescription);
   tempEl.textContent = `Temp: ${tempF} °F`;
   windEl.textContent = `Wind: ${windMph} MPH`;
   humidityEl.textContent = `Humidity: ${humidity} %`;
 
-  top.append(topInside);
   topInside.append(topBody);
-  topBody.append(topTitle, weatherIcon, tempEl, windEl, humidityEl);
+  topBody.append(topTitle, topDate, weatherIcon, tempEl, windEl, humidityEl);
 
-  todayContainer.append(top);
+  todayContainer.append(topBody)
 
 }
 
